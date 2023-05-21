@@ -52,6 +52,7 @@ public class Memory {
             String rs;
             String rd;
             String rt;
+            String shamt;
             String imm;
             String jmpAddress;
             int instruction = 0;
@@ -69,11 +70,12 @@ public class Memory {
                 StringBuilder binaryInstruction = new StringBuilder(32);
                 String[] fields = line.split(delimiter);
                 if (fields.length == 5){
-                    //R-Format
+                    //R-Format with SHAMT
                     instructionName = fields[0];
                     rs = fields[1];
                     rt = fields[2];
                     rd = fields[3];
+                    shamt = fields[4];
 
                     switch (instructionName) {
                         case "ADD":
@@ -499,14 +501,17 @@ public class Memory {
                         default:
                         throw new CaException("Wrong Register Number");
                     }    
+                    
+                    int shamtInt = Integer.parseInt(shamt);
+                    shamt = Integer.toBinaryString(shamtInt);
+                    binaryInstruction.append("shamt");
 
                 } else if (fields.length == 4){
-                    //I-Format
+                    //I-Format or R-Format without SHAMT
                     instructionName = fields[0];
                     rs = fields[1];
                     rt = fields[2];
-                    imm = fields[3];
-
+                                      
                     switch (instructionName) {
                         case "ADD":
                         binaryInstruction.append("0000");
@@ -807,7 +812,140 @@ public class Memory {
                         default:
                         throw new CaException("Wrong Register Number");
                     }
-                    binaryInstruction.append(imm);
+                    
+                    if (fields[3].contains("R")){
+                        rd = fields[3];
+                        switch (rd){
+                            case "R1":
+                            binaryInstruction.append("00000");
+                                break;
+    
+                            case "R2":
+                            binaryInstruction.append("00001");
+                                break;
+    
+                            case "R3":
+                            binaryInstruction.append("00010");
+                                break;
+    
+                            case "R4":
+                            binaryInstruction.append("00011");
+                                break;
+    
+                            case "R5":
+                            binaryInstruction.append("00100");
+                                break;
+    
+                            case "R6":
+                            binaryInstruction.append("00101");
+                                break;
+                            case "R7":
+                            binaryInstruction.append("00110");
+                                break;
+    
+                            case "R8":
+                            binaryInstruction.append("00111");
+                                break;
+    
+                            case "R9":
+                            binaryInstruction.append("01000");
+                                break;
+    
+                            case "R10":
+                            binaryInstruction.append("01001");
+                                break;
+    
+                            case "R11":
+                            binaryInstruction.append("01010");
+                                break;
+    
+                            case "R12":
+                            binaryInstruction.append("01011");
+                                break;
+    
+                            case "R13":
+                            binaryInstruction.append("01100");
+                                break;
+    
+                            case "R14":
+                            binaryInstruction.append("01101");
+                                break;
+    
+                            case "R15":
+                            binaryInstruction.append("01110");
+                                break;
+    
+                            case "R16":
+                            binaryInstruction.append("01111");
+                                break;
+    
+                            case "R17":
+                            binaryInstruction.append("10000");
+                                break;
+                            case "R18":
+                            binaryInstruction.append("10001");
+                                break;
+    
+                            case "R19":
+                            binaryInstruction.append("10010");
+                                break;
+    
+                            case "R20":
+                            binaryInstruction.append("10011");
+                                break;
+                            case "R21":
+                            binaryInstruction.append("10100");
+                                break;
+    
+                            case "R22":
+                            binaryInstruction.append("10101");
+                                break;
+    
+                            case "R23":
+                            binaryInstruction.append("10110");
+                                break;
+                                
+                            case "R24":
+                            binaryInstruction.append("10111");
+                                break;
+    
+                            case "R25":
+                            binaryInstruction.append("11000");
+                                break;
+    
+                            case "R26":
+                            binaryInstruction.append("11001");
+                                break;
+    
+                            case "R27":
+                            binaryInstruction.append("11010");
+                                break;
+    
+                            case "R28":
+                            binaryInstruction.append("11011");
+                                break;
+                            case "R29":
+                            binaryInstruction.append("11100");
+                                break;
+    
+                            case "R30":
+                            binaryInstruction.append("11101");
+                                break;
+    
+                            case "R31":
+                            binaryInstruction.append("11110");
+                                break;
+    
+                            default:
+                            throw new CaException("Wrong Register Number");
+                        }  
+
+                    }else{
+                        imm = fields[3];
+                        int immInt = Integer.parseInt(imm);
+                        imm = Integer.toBinaryString(immInt);
+                        binaryInstruction.append(imm);
+                    }
                 } else if (fields.length == 2){
                     //J-Format
                     instructionName = fields[0];
