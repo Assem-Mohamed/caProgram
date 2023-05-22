@@ -7,49 +7,11 @@ public class Memory {
 
     public Memory() {
         memory = new String[2048];
-    }
-
-    // public void write(int address, long instruction) {
-    //     if (address >= 0 && address < 2048) {
-    //         for (int i = 0; i < 32; i++) {
-    //             int bit = (int) ((instruction >> i) & 1);
-    //             memory[i][address] = bit;
-    //         }
-    //     } else {
-    //         throw new IllegalArgumentException("Invalid memory address");
-    //     }
-    // }
-
-    // public void write(int address, String instruction) {
-    //     if (address >= 0 && address < 2048) {
-    //         if (instruction.length() == 32) {
-    //             for (int i = 0; i < 32; i++) {
-    //                 int bit = Character.getNumericValue(instruction.charAt(i));
-    //                 memory[i][address] = bit;
-    //             }
-    //         } else {
-    //             throw new IllegalArgumentException("Invalid instruction length");
-    //         }
-    //     } else {
-    //         throw new IllegalArgumentException("Invalid memory address");
-    //     }
-    // }
-
-    // public int read(int address) {
-    //     if (address >= 0 && address < 2048) {
-    //         int data = 0;
-    //         for (int i = 0; i < 32; i++) {
-    //             data |= memory[i][address] << i;
-    //         }
-    //         return data;
-    //     } else {
-    //         throw new IllegalArgumentException("Invalid memory address");
-    //     }
-    // }
+    }      
 
     public void write(int address, String instruction) {
         if (address >= 0 && address < 2048) {
-            if (instruction.length() <= 32) {
+            if (instruction.length() == 32) {
                 memory[address] = instruction;
             } else {
                 throw new IllegalArgumentException("Invalid instruction length");
@@ -67,34 +29,7 @@ public class Memory {
         }
     }
 
-    // public int read(int address) {
-    //     if (address >= 0 && address < 2048) {
-    //         if (memory[address] != null && memory[address].length() == 32) {
-    //             int data = 0;
-    //             for (int i = 0; i < 32; i++) {
-    //                 int bit = Character.getNumericValue(memory[address].charAt(i));
-    //                 data |= bit << i;
-    //             }
-    //             return data;
-    //         } else {
-    //             throw new IllegalArgumentException("Invalid memory content");
-    //         }
-    //     } else {
-    //         throw new IllegalArgumentException("Invalid memory address");
-    //     }
-    // }
-    
-    // public boolean getBit(int address, int bitIndex) {
-    //     if (bitIndex < 0 || bitIndex >= 32) {
-    //         throw new IllegalArgumentException("Invalid bit index");
-    //     }
-
-    //     return memory[bitIndex][address] != 0;
-    // }
-
     public void loadInstructionsFromFile(String filePath) throws CaException {
-
-
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
@@ -107,7 +42,6 @@ public class Memory {
             String shamt;
             String imm;
             String jmpAddress;
-            long instruction = 0;
 
             //For the decode method 
             // int opcode = 0;  // bits 31:28
