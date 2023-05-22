@@ -504,7 +504,8 @@ public class Memory {
                     
                     int shamtInt = Integer.parseInt(shamt);
                     shamt = Integer.toBinaryString(shamtInt);
-                    binaryInstruction.append("shamt");
+                    shamt = String.format("%13s", shamt.replace(' ', '0')); 
+                    binaryInstruction.append(shamt);
 
                 } else if (fields.length == 4){
                     //I-Format or R-Format without SHAMT
@@ -944,6 +945,7 @@ public class Memory {
                         imm = fields[3];
                         int immInt = Integer.parseInt(imm);
                         imm = Integer.toBinaryString(immInt);
+                        imm = String.format("%13s", imm.replace(' ', '0'));
                         binaryInstruction.append(imm);
                     }
                 } else if (fields.length == 2){
@@ -1003,10 +1005,14 @@ public class Memory {
                         default:
                         throw new CaException("Instruction(s) not supported");
                     }
+                    int jmpAddressInt = Integer.parseInt(jmpAddress);
+                    jmpAddress = Integer.toBinaryString(jmpAddressInt);
+                    jmpAddress = String.format("%28s", jmpAddress.replace(' ', '0')); 
                     binaryInstruction.append(jmpAddress);
                 }
 
                 // Store the instruction in memory
+                instruction = Integer.parseInt(binaryInstruction.toString());
                 writeInstruction(address, instruction);
                 address++;
             }
