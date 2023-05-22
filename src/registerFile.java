@@ -1,7 +1,7 @@
 public class registerFile {
     private String[] registers;
     private final String zeroRegister = "00000000000000000000000000000000"; // 32-bit zero value
-    private int programCounter;
+    public int programCounter;
 
     public registerFile() {
         registers = new String[32];
