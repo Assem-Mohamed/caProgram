@@ -3,7 +3,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class Memory {
-    private String[] memory;
+    private static String[] memory;
 
     public Memory() {
         memory = new String[2048];
@@ -42,15 +42,6 @@ public class Memory {
             String shamt;
             String imm;
             String jmpAddress;
-
-            //For the decode method 
-            // int opcode = 0;  // bits 31:28
-            // int r1 = 0;      // bits 27:23
-            // int r2 = 0;      // bit 22:18
-            // int r3 = 0;      // bits 17:13
-            // int shamt = 0;   // bits 12:0
-            // int imm = 0;     // bits 17:0
-            // int jmpAddress = 0; // bits 27:0
 
             while ((line = reader.readLine()) != null) {
                 StringBuilder binaryInstruction = new StringBuilder(32);
@@ -364,130 +355,132 @@ public class Memory {
                         throw new CaException("Wrong Register Number");
                     }
                     switch (rt){
-
                         case "0":
                         binaryInstruction.append("00000"); 
-                            break; 
-                        //shift all by 1
-
-                        case "R1":
-                        binaryInstruction.append("00000");
                             break;
 
-                        case "R2":
+                        case "R1":
                         binaryInstruction.append("00001");
                             break;
 
-                        case "R3":
+                        case "R2":
                         binaryInstruction.append("00010");
                             break;
 
-                        case "R4":
+                        case "R3":
                         binaryInstruction.append("00011");
                             break;
 
-                        case "R5":
+                        case "R4":
                         binaryInstruction.append("00100");
                             break;
 
-                        case "R6":
+                        case "R5":
                         binaryInstruction.append("00101");
                             break;
-                        case "R7":
+
+                        case "R6":
                         binaryInstruction.append("00110");
                             break;
 
-                        case "R8":
+                        case "R7":
                         binaryInstruction.append("00111");
                             break;
 
-                        case "R9":
+                        case "R8":
                         binaryInstruction.append("01000");
                             break;
 
-                        case "R10":
+                        case "R9":
                         binaryInstruction.append("01001");
                             break;
 
-                        case "R11":
+                        case "R10":
                         binaryInstruction.append("01010");
                             break;
 
-                        case "R12":
+                        case "R11":
                         binaryInstruction.append("01011");
                             break;
 
-                        case "R13":
+                        case "R12":
                         binaryInstruction.append("01100");
                             break;
 
-                        case "R14":
+                        case "R13":
                         binaryInstruction.append("01101");
                             break;
 
-                        case "R15":
+                        case "R14":
                         binaryInstruction.append("01110");
                             break;
 
-                        case "R16":
+                        case "R15":
                         binaryInstruction.append("01111");
                             break;
 
-                        case "R17":
+                        case "R16":
                         binaryInstruction.append("10000");
                             break;
-                        case "R18":
+
+                        case "R17":
                         binaryInstruction.append("10001");
                             break;
 
-                        case "R19":
+                        case "R18":
                         binaryInstruction.append("10010");
                             break;
 
-                        case "R20":
+                        case "R19":
                         binaryInstruction.append("10011");
                             break;
-                        case "R21":
+
+                        case "R20":
                         binaryInstruction.append("10100");
                             break;
 
-                        case "R22":
+                        case "R21":
                         binaryInstruction.append("10101");
                             break;
 
-                        case "R23":
+                        case "R22":
                         binaryInstruction.append("10110");
+                            break;
+
+                        case "R23":
+                        binaryInstruction.append("10111");
                             break;
                             
                         case "R24":
-                        binaryInstruction.append("10111");
-                            break;
-
-                        case "R25":
                         binaryInstruction.append("11000");
                             break;
 
-                        case "R26":
+                        case "R25":
                         binaryInstruction.append("11001");
                             break;
 
-                        case "R27":
+                        case "R26":
                         binaryInstruction.append("11010");
                             break;
 
-                        case "R28":
+                        case "R27":
                         binaryInstruction.append("11011");
                             break;
-                        case "R29":
+
+                        case "R28":
                         binaryInstruction.append("11100");
                             break;
 
-                        case "R30":
+                        case "R29":
                         binaryInstruction.append("11101");
                             break;
 
-                        case "R31":
+                        case "R30":
                         binaryInstruction.append("11110");
+                            break;
+
+                        case "R31":
+                        binaryInstruction.append("11111");
                             break;
 
                         default:
@@ -556,7 +549,7 @@ public class Memory {
     
                         default:
                         throw new CaException("Instruction(s) not supported");
-                    }
+                    }       
                     switch (rd){
                         case "R1":
                         binaryInstruction.append("00000");
@@ -684,137 +677,139 @@ public class Memory {
                     switch (rs){
                         case "0":
                         binaryInstruction.append("00000"); 
-                            break; 
-                        //shift all by 1
-
-                        case "R1":
-                        binaryInstruction.append("00000");
                             break;
 
-                        case "R2":
+                        case "R1":
                         binaryInstruction.append("00001");
                             break;
 
-                        case "R3":
+                        case "R2":
                         binaryInstruction.append("00010");
                             break;
 
-                        case "R4":
+                        case "R3":
                         binaryInstruction.append("00011");
                             break;
 
-                        case "R5":
+                        case "R4":
                         binaryInstruction.append("00100");
                             break;
 
-                        case "R6":
+                        case "R5":
                         binaryInstruction.append("00101");
                             break;
-                        case "R7":
+
+                        case "R6":
                         binaryInstruction.append("00110");
                             break;
 
-                        case "R8":
+                        case "R7":
                         binaryInstruction.append("00111");
                             break;
 
-                        case "R9":
+                        case "R8":
                         binaryInstruction.append("01000");
                             break;
 
-                        case "R10":
+                        case "R9":
                         binaryInstruction.append("01001");
                             break;
 
-                        case "R11":
+                        case "R10":
                         binaryInstruction.append("01010");
                             break;
 
-                        case "R12":
+                        case "R11":
                         binaryInstruction.append("01011");
                             break;
 
-                        case "R13":
+                        case "R12":
                         binaryInstruction.append("01100");
                             break;
 
-                        case "R14":
+                        case "R13":
                         binaryInstruction.append("01101");
                             break;
 
-                        case "R15":
+                        case "R14":
                         binaryInstruction.append("01110");
                             break;
 
-                        case "R16":
+                        case "R15":
                         binaryInstruction.append("01111");
                             break;
 
-                        case "R17":
+                        case "R16":
                         binaryInstruction.append("10000");
                             break;
-                        case "R18":
+
+                        case "R17":
                         binaryInstruction.append("10001");
                             break;
 
-                        case "R19":
+                        case "R18":
                         binaryInstruction.append("10010");
                             break;
 
-                        case "R20":
+                        case "R19":
                         binaryInstruction.append("10011");
                             break;
-                        case "R21":
+
+                        case "R20":
                         binaryInstruction.append("10100");
                             break;
 
-                        case "R22":
+                        case "R21":
                         binaryInstruction.append("10101");
                             break;
 
-                        case "R23":
+                        case "R22":
                         binaryInstruction.append("10110");
+                            break;
+
+                        case "R23":
+                        binaryInstruction.append("10111");
                             break;
                             
                         case "R24":
-                        binaryInstruction.append("10111");
-                            break;
-
-                        case "R25":
                         binaryInstruction.append("11000");
                             break;
 
-                        case "R26":
+                        case "R25":
                         binaryInstruction.append("11001");
                             break;
 
-                        case "R27":
+                        case "R26":
                         binaryInstruction.append("11010");
                             break;
 
-                        case "R28":
+                        case "R27":
                         binaryInstruction.append("11011");
                             break;
-                        case "R29":
+
+                        case "R28":
                         binaryInstruction.append("11100");
                             break;
 
-                        case "R30":
+                        case "R29":
                         binaryInstruction.append("11101");
                             break;
 
-                        case "R31":
+                        case "R30":
                         binaryInstruction.append("11110");
                             break;
-                        
+
+                        case "R31":
+                        binaryInstruction.append("11111");
+                            break;
 
                         default:
                         throw new CaException("Wrong Register Number");
-                    }
-                    
+                    }    
+
                     if (fields[3].contains("R")){
-                        rd = fields[3];
-                        switch (rd){
+                        rt = fields[3];
+                        switch (rt){
                             case "R1":
                             binaryInstruction.append("00000");
                                 break;
@@ -940,7 +935,7 @@ public class Memory {
                         }
                         binaryInstruction.append("0000000000000");  
 
-                    }else{
+                    } else{
                         imm = fields[3];
                         int immInt = Integer.parseInt(imm);
                         imm = Integer.toBinaryString(immInt);
@@ -1010,9 +1005,6 @@ public class Memory {
                     binaryInstruction.append(jmpAddress);
                 }
 
-                // Store the instruction in memory
-                // instruction = Integer.parseInt(binaryInstruction.toString());
-                // write(address, instruction);
                 write(address, binaryInstruction.toString());
                 address++;
             }
@@ -1023,6 +1015,7 @@ public class Memory {
 
     public static void main(String[] args) throws CaException {
         Memory memory = new Memory();
+        Ca CPU = new Ca();
 
         String filePath = "D:\\GUC\\Semester 6\\(CSEN601) Computer System Architecture\\Project\\caProgram\\src\\Instructions.txt";
         memory.loadInstructionsFromFile(filePath);
@@ -1030,8 +1023,9 @@ public class Memory {
         // Read instructions from memory
         for (int address = 0; address < 20; address++) {
             String instruction = memory.read(address);
+            CPU.fetch();
             // System.out.println("Instruction at address " + address + ": " + Integer.toBinaryString(instruction));
-            System.out.println(instruction);
+            System.out.println("test" + instruction);
         }
     }
 }

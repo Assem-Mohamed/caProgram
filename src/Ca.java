@@ -1,64 +1,101 @@
 
-public class Ca {
-    public static void fetch() {
+public class Ca{
+    static registerFile registers = new registerFile();  
+    Memory memory = new Memory();  
+    public void fetch() {
+
+        int address = 0;
+        String instruction;
+
+        while(registers.getProgramCounter()<20){
+            address = registers.getProgramCounter();
+            instruction = memory.read(address);
         
-        int instruction = 0;
-        
-        // Complete the fetch() body...
-        while(programCounter<20){
-            instruction = Memory.read(programCounter);
-        
-        decode(instruction);
-        
-        // Complete the fetch() body...
-        programCounter++;
+            decode(instruction);
+
+            registers.setProgramCounter(registers.getProgramCounter() + 1);;
         }
-        
     }
-    public static void decode(int instruction) {
+    public void decode(String instruction) {
         
         //For the decode method 
-        int opcode = 0;  // bits 31:28
-        int rd = 0;      // bits 27:23
-        int rs = 0;      // bit 22:18
-        int rt = 0;      // bits 17:13
-        int shamt = 0;   // bits 12:0
-        int imm = 0;     // bits 17:0
-        int jmpAddress = 0; // bits 27:0
+        String opcode;  // bits 31:28
+        String rd;      // bits 27:23
+        String rs;      // bit 22:18
+        String rt;      // bits 17:13
+        String shamt;   // bits 12:0
+        String imm;     // bits 17:0
+        String jmpAddress; // bits 27:0
         
-        int valueRS = 0;
-        int valueRT = 0;
+        // int valueRS = 0;
+        // int valueRT = 0;
         
         // Complete the decode() body...
-        opcode = (instruction>>28) & 0b1111;
-        if (opcode == 0000 || opcode == 0001 || opcode == 0010 || opcode == 0101 || opcode == 1000 || opcode == 1001){
-            
+
+        opcode = Integer.toBinaryString(Integer.parseInt(instruction.substring(0, 4), 2) & Integer.parseInt("1111", 2));
+        opcode = String.format("%4s", opcode).replace(' ', '0');
+        rd = Integer.toBinaryString(Integer.parseInt(instruction.substring(4, 9), 2) & Integer.parseInt("11111", 2));
+        rd = String.format("%5s", rd).replace(' ', '0');
+        rs = Integer.toBinaryString(Integer.parseInt(instruction.substring(9, 14), 2) & Integer.parseInt("11111", 2));
+        rs = String.format("%5s", rs).replace(' ', '0');
+        rt = Integer.toBinaryString(Integer.parseInt(instruction.substring(14, 19), 2) & Integer.parseInt("11111", 2));
+        rt = String.format("%5s", rt).replace(' ', '0');
+        shamt = Integer.toBinaryString(Integer.parseInt(instruction.substring(19, 32), 2) & Integer.parseInt("1111111111111", 2));
+        shamt = String.format("%13s", shamt).replace(' ', '0');
+        imm = Integer.toBinaryString(Integer.parseInt(instruction.substring(14, 32), 2) & Integer.parseInt("111111111111111111", 2));
+        imm = String.format("%18s", imm).replace(' ', '0');
+        jmpAddress = Integer.toBinaryString(Integer.parseInt(instruction.substring(4, 32), 2) & Integer.parseInt("1111111111111111111111111111", 2));
+        jmpAddress = String.format("%28s", jmpAddress).replace(' ', '0');
+
+        if(opcode.equals("0000")){
+            int rsContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rs, 2)), 2);
+            int rtContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rt, 2)), 2);
+            int rdContent = rsContent + rtContent;
+            registers.writeRegister(Integer.parseInt(rd, 2), String.format("%32s", Integer.toBinaryString(rdContent)).replace(' ', '0'));
+        } 
+        else if(opcode.equals("0001")){
+            int rsContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rs, 2)), 2);
+            int rtContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rt, 2)), 2);
+            int rdContent = rsContent - rtContent;
+            registers.writeRegister(Integer.parseInt(rd, 2), String.format("%32s", Integer.toBinaryString(rdContent)).replace(' ', '0'));
+        } 
+        else if(opcode.equals("0010")){
+            int rsContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rs, 2)), 2);
+            int rtContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rt, 2)), 2);
+            int rdContent = rsContent * rtContent;
+            registers.writeRegister(Integer.parseInt(rd, 2), String.format("%32s", Integer.toBinaryString(rdContent)).replace(' ', '0'));
+        } 
+        else if(opcode.equals("0011")){
+            registers.writeRegister(Integer.parseInt(rd, 2), String.format("%32s", imm).replace(' ', '0'));
         }
-        rd = (instruction>>23) & 0b11111;
-        rs = (instruction>>17) & 0b11111;
-        rt = (instruction>>13) & 0b11111;
-        shamt = (instruction) & 0b1111111111111;
-        imm = (instruction) & 0b111111111111111111;
-        jmpAddress = (instruction) & 0b1111111111111111111111111111;
-        
-        // valueRS = registerFile[rs];
-        // valueRT = registerFile[rt];
-        
-       
+        else if(opcode.equals("0100")){
+            int rsContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rs, 2)), 2);
+            int rdContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rt, 2)), 2);
+            if (rsContent == rdContent){
+                registers.setProgramCounter(registers.getProgramCounter() + 1 + Integer.parseInt(imm, 2));
+            }
+        }
+        if(opcode.equals("0101")){
+            int rsContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rs, 2)), 2);
+            int rtContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rt, 2)), 2);
+            int rdContent = rsContent & rtContent;
+            registers.writeRegister(Integer.parseInt(rd, 2), String.format("%32s", Integer.toBinaryString(rdContent)).replace(' ', '0'));
+        } 
+    
+            
         // Printings
         
-        // System.out.println("Instruction "+pc);
-        // System.out.println("opcode = "+opcode);
-        // System.out.println("rs = "+rs);
-        // System.out.println("rt = "+rt);
-        // System.out.println("rd = "+rd);
-        // System.out.println("shift amount = "+shamt);
-        // System.out.println("function = "+funct);
-        // System.out.println("immediate = "+imm);
-        // System.out.println("address = "+address);
+        System.out.println("Instruction "+registers.getProgramCounter());
+        System.out.println("opcode = "+opcode);
+        System.out.println("rs = "+rd);
+        System.out.println("rt = "+rs);
+        System.out.println("rd = "+rt);
+        System.out.println("shift amount = "+shamt);
+        System.out.println("immediate = "+imm);
+        System.out.println("jmpAddress = "+jmpAddress);
         // System.out.println("value[rs] = "+valueRS);
         // System.out.println("value[rt] = "+valueRT);
-        // System.out.println("----------");
+        System.out.println("----------");
         
         
     }
