@@ -1016,16 +1016,19 @@ public class Memory {
     public static void main(String[] args) throws CaException {
         Memory memory = new Memory();
         Ca CPU = new Ca();
+        registerFile registers = Ca.registers;
 
         String filePath = "D:\\GUC\\Semester 6\\(CSEN601) Computer System Architecture\\Project\\caProgram\\src\\Instructions.txt";
         memory.loadInstructionsFromFile(filePath);
 
+        CPU.fetch();
+        
         // Read instructions from memory
-        for (int address = 0; address < 20; address++) {
-            String instruction = memory.read(address);
-            CPU.fetch();
-            // System.out.println("Instruction at address " + address + ": " + Integer.toBinaryString(instruction));
-            System.out.println("test" + instruction);
-        }
+        // for (int address = 0; address < 10; address++) {
+        //     String instruction = memory.read(address);
+        //     // System.out.println("Instruction at address " + address + ": " + Integer.toBinaryString(instruction));
+        //     System.out.println("test " + instruction);
+        //     // System.out.println(registers.getProgramCounter());
+        // }
     }
 }
