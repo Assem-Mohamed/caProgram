@@ -19,7 +19,7 @@ public class registerFile {
 
     public String readRegister(int index) {
         if (index >= 0 && index < 32) {
-            return registers[index];
+            return String.format("%32s", registers[index]).replace(' ', '0');
         } else {
             throw new IllegalArgumentException("Invalid register index");
         }
@@ -28,7 +28,7 @@ public class registerFile {
     public void writeRegister(int index, String value) {
         if (index >= 0 && index < 32) {
             if (index != 0) {
-                registers[index] = value;
+                registers[index] = String.format("%32s", value).replace(' ', '0');
             }
         } else {
             throw new IllegalArgumentException("Invalid register index");
