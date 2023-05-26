@@ -1017,11 +1017,14 @@ public class Memory {
         Memory memory = new Memory();
         Ca CPU = new Ca();
         registerFile registers = Ca.registers;
+        int clk = 1;
 
         String filePath = "D:\\GUC\\Semester 6\\(CSEN601) Computer System Architecture\\Project\\caProgram\\src\\Instructions.txt";
         memory.loadInstructionsFromFile(filePath);
 
-        CPU.fetch();
+            CPU.fetch();
+
+        
         
         // Read instructions from memory
         // for (int address = 0; address < 10; address++) {

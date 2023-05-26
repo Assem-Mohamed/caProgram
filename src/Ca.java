@@ -2,6 +2,17 @@
 public class Ca {
     static registerFile registers = new registerFile();
     Memory memory = new Memory();
+    int clk;
+    String fetchInstruction;
+    String decodeInstruction;
+    String executeInstruction;
+    String memInstruction;
+    String writeBkInstruction;
+    int fetchTimer; 
+    int decodeTimer;
+    int executeTimer;
+    int memTimer;
+    int writeBkTimer;
 
     public void fetch() {
 
@@ -29,10 +40,8 @@ public class Ca {
         String imm; // bits 17:0
         String jmpAddress; // bits 27:0
 
-        // int valueRS = 0;
-        // int valueRT = 0;
-
-        // Complete the decode() body...
+        String valueRS;
+        String valueRT;
 
         opcode = Integer.toBinaryString(Integer.parseInt(instruction.substring(0, 4), 2) & Integer.parseInt("1111", 2));
         opcode = String.format("%4s", opcode).replace(' ', '0');
@@ -52,7 +61,10 @@ public class Ca {
                 & Integer.parseInt("1111111111111111111111111111", 2));
         jmpAddress = String.format("%28s", jmpAddress).replace(' ', '0');
 
-        execute(instruction, opcode, rd, rs, rt,  shamt, imm, jmpAddress);
+        valueRS = registers.readRegister(Integer.parseInt(rs, 2));
+        valueRT = registers.readRegister(Integer.parseInt(rt, 2));
+
+        execute(instruction, opcode, rd, valueRS, valueRT,  shamt, imm, jmpAddress);
 
         // Printings
 
@@ -69,68 +81,82 @@ public class Ca {
     }
 
     // Execution
-    public void execute(String instruction, String opcode, String rd, String rs, String rt, String shamt, String imm,
+    // Need to "return or equivalent" for rd so it be saved in register file in method writeBack not here 
+    public String execute(String instruction, String opcode, String rd, String valueRS, String valueRT, String shamt, String imm,
             String jmpAddress) {
-
         if (opcode.equals("0000")) { // ADD
-            int rsContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rs, 2)), 2);
-            int rtContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rt, 2)), 2);
+            int rsContent = Integer.parseInt(valueRS, 2);
+            int rtContent = Integer.parseInt(valueRT, 2);
             int rdContent = rsContent + rtContent;
-            registers.writeRegister(Integer.parseInt(rd, 2),
-                    String.format("%32s", Integer.toBinaryString(rdContent)).replace(' ', '0'));
+            return Integer.toBinaryString(rdContent);
+            // registers.writeRegister(Integer.parseInt(rd, 2),
+            //         String.format("%32s", Integer.toBinaryString(rdContent)).replace(' ', '0'));
         } else if (opcode.equals("0001")) { // SUB
-            int rsContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rs, 2)), 2);
-            int rtContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rt, 2)), 2);
+            int rsContent = Integer.parseInt(valueRS, 2);
+            int rtContent = Integer.parseInt(valueRT, 2);
             int rdContent = rsContent - rtContent;
-            registers.writeRegister(Integer.parseInt(rd, 2),
-                    String.format("%32s", Integer.toBinaryString(rdContent)).replace(' ', '0'));
+            return Integer.toBinaryString(rdContent);
+            // registers.writeRegister(Integer.parseInt(rd, 2),
+            //         String.format("%32s", Integer.toBinaryString(rdContent)).replace(' ', '0'));
         } else if (opcode.equals("0010")) { // MUL
-            int rsContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rs, 2)), 2);
-            int rtContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rt, 2)), 2);
+            int rsContent = Integer.parseInt(valueRS, 2);
+            int rtContent = Integer.parseInt(valueRT, 2);
             int rdContent = rsContent * rtContent;
-            registers.writeRegister(Integer.parseInt(rd, 2),
-                    String.format("%32s", Integer.toBinaryString(rdContent)).replace(' ', '0'));
+            return Integer.toBinaryString(rdContent);
+            // registers.writeRegister(Integer.parseInt(rd, 2),
+            //         String.format("%32s", Integer.toBinaryString(rdContent)).replace(' ', '0'));
         } else if (opcode.equals("0011")) { // MOVI
             registers.writeRegister(Integer.parseInt(rd, 2), String.format("%32s", imm).replace(' ', '0'));
         } else if (opcode.equals("0100")) { // JEQ
-            int rsContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rs, 2)), 2);
-            int rdContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rt, 2)), 2);
+            int rsContent = Integer.parseInt(valueRS, 2);
+            int rdContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rd, 2)), 2);
             if (rsContent == rdContent) {
                 registers.setProgramCounter(registers.getProgramCounter() + Integer.parseInt(imm, 2));
             }
         } else if (opcode.equals("0101")) { // AND
-            int rsContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rs, 2)), 2);
-            int rtContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rt, 2)), 2);
+            int rsContent = Integer.parseInt(valueRS, 2);
+            int rtContent = Integer.parseInt(valueRT, 2);
             int rdContent = rsContent & rtContent;
-            registers.writeRegister(Integer.parseInt(rd, 2),
-                    String.format("%32s", Integer.toBinaryString(rdContent)).replace(' ', '0'));
-        } else if (opcode.equals("0110")) { // XOR
-            int rsContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rs, 2)), 2);
+            return Integer.toBinaryString(rdContent);
+            // registers.writeRegister(Integer.parseInt(rd, 2),
+            //         String.format("%32s", Integer.toBinaryString(rdContent)).replace(' ', '0'));
+        } else if (opcode.equals("0110")) { // XOR 
+            int rsContent = Integer.parseInt(valueRS, 2);
             int rdContent = rsContent ^ Integer.parseInt(imm, 2);
-            registers.writeRegister(Integer.parseInt(rd, 2),
-                    String.format("%32s", Integer.toBinaryString(rdContent)).replace(' ', '0'));
+            return Integer.toBinaryString(rdContent);
+            // registers.writeRegister(Integer.parseInt(rd, 2),
+            //         String.format("%32s", Integer.toBinaryString(rdContent)).replace(' ', '0'));
         } else if (opcode.equals("0111")) { // JMP
             registers.setProgramCounter(Integer
                     .parseInt((Integer.toBinaryString(registers.getProgramCounter()).substring(0, 4) + jmpAddress), 2));
         } else if (opcode.equals("1000")) { // LSL
-            int rsContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rs, 2)), 2);
+            int rsContent = Integer.parseInt(valueRS, 2);
             int rdContent = rsContent << Integer.parseInt(shamt, 2);
-            registers.writeRegister(Integer.parseInt(rd, 2),
-                    String.format("%32s", Integer.toBinaryString(rdContent)).replace(' ', '0'));
+            return Integer.toBinaryString(rdContent);
+            // registers.writeRegister(Integer.parseInt(rd, 2),
+            //         String.format("%32s", Integer.toBinaryString(rdContent)).replace(' ', '0'));
         } else if (opcode.equals("1001")) { // LSR
-            int rsContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rs, 2)), 2);
+            int rsContent = Integer.parseInt(valueRS, 2);
             int rdContent = rsContent >>> Integer.parseInt(shamt, 2);
-            registers.writeRegister(Integer.parseInt(rd, 2),
-                    String.format("%32s", Integer.toBinaryString(rdContent)).replace(' ', '0'));
+            return Integer.toBinaryString(rdContent);
+            // registers.writeRegister(Integer.parseInt(rd, 2),
+            //         String.format("%32s", Integer.toBinaryString(rdContent)).replace(' ', '0'));
         } else if (opcode.equals("1010")) { // MOVR
-            int rsContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rs, 2)), 2);
+            int rsContent = Integer.parseInt(valueRS, 2);
             memory.read(rsContent + Integer.parseInt(imm, 2));
             registers.writeRegister(Integer.parseInt(rd, 2),
                     String.format("%32s", memory.read(rsContent + Integer.parseInt(imm, 2))).replace(' ', '0'));
         } else if (opcode.equals("1011")) { // MOVM
-            int rsContent = Integer.parseInt(registers.readRegister(Integer.parseInt(rs, 2)), 2);
-            memory.write(rsContent + Integer.parseInt(imm, 2), registers.readRegister(Integer.parseInt(rs, 2)));
+            int rsContent = Integer.parseInt(valueRS, 2);
+            memory.write(rsContent + Integer.parseInt(imm, 2), registers.readRegister(Integer.parseInt(rd, 2)));
         }
+        return null;
+        
+    }
+    public void memory(){
+
+    }
+    public void writeBack(){
 
     }
 
