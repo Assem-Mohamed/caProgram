@@ -126,7 +126,7 @@ public class Ca {
                     break;
                 case 6: instruction.valueR1 = instruction.valueR2 ^ instruction.immediate; break;
                 case 10: break;
-                case 11: instruction.r1 = instruction.valueR2 + instruction.immediate; break;
+                case 11: break;
                 default: break;
             }
         }
@@ -144,8 +144,8 @@ public class Ca {
             instruction.valueR1 = memory.dataMemory.get(instruction.r2 + instruction.immediate);
         }
         else if(instruction.opcode == 11){
-            memory.dataMemory.set(instruction.r1, instruction.valueR1);
-            System.out.println("Data Memory Block " + instruction.r1 + ": " + memory.dataMemory.get(instruction.r1));
+            memory.dataMemory.set(instruction.valueR2 + instruction.immediate, instruction.valueR1);
+            System.out.println("Data Memory Block " + instruction.valueR2 + instruction.immediate + ": " + memory.dataMemory.get(instruction.valueR2 + instruction.immediate));
         }
     }
 

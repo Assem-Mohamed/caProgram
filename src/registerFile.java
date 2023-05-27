@@ -7,7 +7,7 @@ public class RegisterFile {
     public RegisterFile(){
         registers.add(new zeroRegister());
 
-        for (int i = 1; i<32;i++)
+        for (int i = 1; i < 32; i++)
             registers.add(new Register(i));
 
     }
