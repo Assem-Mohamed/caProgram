@@ -139,13 +139,11 @@ public class Ca {
 
     }
 
-    public void memory(Instruction instruction){
+    public void mem(Instruction instruction){
         if(instruction.opcode == 10){
             instruction.valueR1 = memory.dataMemory.get(instruction.r2 + instruction.immediate);
         }
         else if(instruction.opcode == 11){
-            System.out.println(instruction.r1 + "heeeeeeeeeeeeerrre");
-            System.out.println(instruction.valueR1+ "heeeeeeeeeeeeerrre");
             memory.dataMemory.set(instruction.r1, instruction.valueR1);
             System.out.println("Data Memory Block " + instruction.r1 + ": " + memory.dataMemory.get(instruction.r1));
         }
@@ -165,18 +163,18 @@ public class Ca {
         int clk;
         int maxpipe=0;
 
-        int decodearrival=0;
-        int executearrival=0;
-        int memoryarrival=0;
-        int writebackarrival=0;
-        int finisharrival=0;
-        int decodearrivalplusone=0;
-        int executearrivalplusone=0;
-        int tempdecoding=0;
+        int decodeCalling=0;
+        int executeCalling=0;
+        int memCalling=0;
+        int writeBackCalling=0;
+        int finishCalling=0;
+        int decodeCallingRun2=0;
+        int executeCallingRun2=0;
+        int decodeTemp=0;
         int jumpingPC = 0;
         int oldPC = 0;
-        boolean weJumping = false;
-        boolean dropOne = false;
+        boolean jumping = false;
+        boolean drop = false;
 
         // pointers
         Integer fetching=null;
@@ -192,75 +190,75 @@ public class Ca {
             System.out.println("Clock Cycle = "+ clk);
 
             // Finishing the instruction
-            if(clk==finisharrival){
+            if(clk==finishCalling){
                 maxpipe--;
                 writingbacking=null;
             }
-            // Writing_Back Stage
-            if(clk==writebackarrival){
+            // WriteBack Stage
+            if(clk==writeBackCalling){
                 writeBack(memorying);
                 writingbacking=memorying;
                 memorying=null;
-                finisharrival=clk+1;
+                finishCalling=clk+1;
             }
             // Memory Stage
-            if(clk==memoryarrival){
-                memory(executing);
+            if(clk==memCalling){
+                mem(executing);
                 memorying=executing;
                 executing=null;
-                writebackarrival=clk+1;
+                writeBackCalling=clk+1;
             }
 
             // Executing in second clk
-            if (clk==executearrivalplusone){
+            if (clk==executeCallingRun2){
 
                 if(executing.opcode==4 || executing.opcode==7){
-                    weJumping = true;
+                    jumping = true;
                     oldPC=pcRegister;
                 }
                 execute(executing);
 
                 if (oldPC == pcRegister && executing.opcode==7)
-                    dropOne = true;
+                    drop = true;
                 if (oldPC == pcRegister && executing.opcode==4){
                     if (executing.valueR1 != executing.valueR2)
-                        dropOne= true;
+                        drop= true;
                 }
-                if (oldPC==pcRegister+1 && weJumping)
+                if (oldPC==pcRegister+1 && jumping)
                     pcRegister=oldPC;
 
             }
 
             // First executing clk
-            if(clk==executearrival){
+            if(clk==executeCalling){
                 executing=decoding;
                 decoding=null;
-                memoryarrival=clk+2;
-                executearrivalplusone= executearrival+1;
+                memCalling=clk+2;
+                executeCallingRun2= executeCalling+1;
             }
 
             // Second decoding clk
-            if(clk==decodearrivalplusone){
-                decoding=decode(tempdecoding);
-                tempdecoding=0;
+            if(clk==decodeCallingRun2){
+                decoding=decode(decodeTemp);
+                decodeTemp=0;
             }
 
             // First decoding clk
-            if(clk==decodearrival){
-                tempdecoding=fetching;
-                decoding=decode(tempdecoding);
+            if(clk==decodeCalling){
+                decodeTemp=fetching;
+                decoding=decode(decodeTemp);
                 if(decoding.opcode==4 || decoding.opcode==7)
                     jumpingPC = pcRegister-1;
                 fetching=null;
-                executearrival=clk+2;
-                decodearrivalplusone=decodearrival+1;
+                executeCalling=clk+2;
+                decodeCallingRun2=decodeCalling+1;
             }
 
             // Fetching Stage
             if(clk%2!=0 && pcRegister<memory.instructionMemory.size() && maxpipe<=4){
                 fetching=fetch();
                 maxpipe++;
-                decodearrival=clk+1;
+                decodeCalling=clk+1;
 
             }
             // To end of we finished the instructions :)
@@ -279,31 +277,31 @@ public class Ca {
             System.out.println("-------------------------------------------------------");
 
             // to null the instructions we are dropping
-            if(weJumping && executing!=null){
-                weJumping=false;
+            if(jumping && executing!=null){
+                jumping=false;
                 if(jumpingPC>pcRegister)
                     n = n + n;
                 if(oldPC!=pcRegister-1 && oldPC!=pcRegister){
                     decoding=null;
                     fetching=null;
-                    decodearrival=0;
-                    decodearrivalplusone=0;
-                    executearrival=0;
-                    executearrivalplusone=0;
+                    decodeCalling=0;
+                    decodeCallingRun2=0;
+                    executeCalling=0;
+                    executeCallingRun2=0;
                     maxpipe-=2;
                     jumpingPC=0;
                     oldPC=0;
                     pcRegister--;
                 }
-                if(dropOne){
+                if(drop){
                     decoding=null;
-                    decodearrivalplusone=0;
-                    executearrival=0;
-                    executearrivalplusone=0;
+                    decodeCallingRun2=0;
+                    executeCalling=0;
+                    executeCallingRun2=0;
                     maxpipe-=1;
                     jumpingPC=0;
                     oldPC=0;
-                    dropOne= false;
+                    drop= false;
                 }
             }//end of nulling
 
@@ -327,7 +325,7 @@ public class Ca {
     public static void main(String[] args) throws Exception {
         Ca ca = new Ca("Instructions.txt");
         ca.pipeline();
-        //Printings
+        
     }
 
 }
