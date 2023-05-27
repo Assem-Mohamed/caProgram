@@ -1,236 +1,333 @@
-import java.util.Vector;
+// import java.util.Vector;
 
 public class Ca {
-    static registerFile registers = new registerFile();
-    Memory memory = new Memory();
-    int clk = 1;
-    
-    // Fetch
-    public String fetch() {
-        int address = 0;
-        String instruction;
 
-        address = registers.getProgramCounter();
-        instruction = memory.read(address);
-        registers.setProgramCounter(registers.getProgramCounter() + 1);
-        return(instruction);
+    RegisterFile registerFile;
+    int pcRegister;
+    Memory memory;
+    static int instructionCounter=1;
+
+    public Ca(String filename) throws Exception {
+        registerFile = new RegisterFile();
+        pcRegister = 0;
+        memory = new Memory(filename);
     }
-    
+    // Fetch
+    public int fetch() {
+
+        int instruction = memory.instructionMemory.get(pcRegister);
+        pcRegister++;
+        return instruction;
+
+    }
     // Decode
-    public String[] decode(String instruction) {
+    public Instruction decode(int instructionValue) {
 
-        String[] decodedInstruction = new String[32];
+        int opcode = (instructionValue) >> 28;
+        if(opcode < 0){
+            opcode = opcode & 0b00000000000000000000000000001111;
+        }
+        int r1 = (instructionValue & 0b00001111100000000000000000000000) >> 23;
+        int r2 = (instructionValue & 0b00000000011111000000000000000000) >> 18;
+        int r3 = (instructionValue & 0b00000000000000111110000000000000) >> 13;
+        int shamt = (instructionValue & 0b00000000000000000001111111111111);
+        int immediate = (instructionValue & 0b00000000000000111111111111111111);
+        int address = (instructionValue & 0b00001111111111111111111111111111);
 
-        // For the decode method
-        String opcode; // bits 31:28
-        String rd; // bits 27:23
-        String rs; // bit 22:18
-        String rt; // bits 17:13
-        String shamt; // bits 12:0
-        String imm; // bits 17:0
-        String jmpAddress; // bits 27:0
+        int valueR1 = registerFile.registers.get(r1).value;
+        int valueR2 = registerFile.registers.get(r2).value;
+        int valueR3 = registerFile.registers.get(r3).value;
 
-        String valueRS;
-        String valueRT;
-        String valueRD;
+        Character type;
 
-        opcode = instruction.substring(0, 4);
-        rd = instruction.substring(4, 9);
-        rs = instruction.substring(9, 14);
-        rt = instruction.substring(14, 19);
-        shamt = instruction.substring(19, 32);
-        imm = instruction.substring(14, 32);
-        jmpAddress = instruction.substring(4, 32);
+        switch (opcode) {
+            case 0:
+                type = 'R';
+                break;
+            case 1:
+                type = 'R';
+                break;
+            case 2:
+                type = 'R';
+                break;
+            case 3:
+                type = 'I';
+                break;
+            case 4:
+                type = 'I';
+                break;
+            case 5:
+                type = 'R';
+                break;
+            case 6:
+                type = 'I';
+                break;
+            case 7:
+                type = 'J';
+                break;
+            case 8:
+                type = 'R';
+                break;
+            case 9:
+                type = 'R';
+                break;
+            case 10:
+                type = 'I';
+                break;
+            case 11:
+                type = 'I';
+                break;
+            default:
+                type = null;
+        }
 
-        valueRS = registers.readRegister(Integer.parseInt(rs, 2));
-        valueRT = registers.readRegister(Integer.parseInt(rt, 2));
-        valueRD = registers.readRegister(Integer.parseInt(rd, 2));
+        String statement = "";
+        switch (opcode){
+            case 0: statement = "Instruction: ADD R" + r1 + " R" + r2 + " R" + r3; break;
+            case 1: statement = "Instruction: SUB R" + r1 + " R" + r2 + " R" + r3; break;
+            case 2: statement = "Instruction: MUL R" + r1 + " R" + r2 + " R" + r3; break;
+            case 3: statement = "Instruction: MOVI R" + r1 + " " + r2 + " " + immediate; break;
+            case 4: statement = "Instruction: JEQ R" + r1 + " R" + r2 + " " + immediate; break;
+            case 5: statement = "Instruction: AND R" + r1 + " R" + r2 + " R" + r3; break;
+            case 6: statement = "Instruction: XORI R" + r1 + " R" + r2 + " " + immediate; break;
+            case 7: statement = "Instruction: JMP " + address; break;
+            case 8: statement = "Instruction: LSL R" + r1 + " R" + r2 + " " + r3 + shamt; break;
+            case 9: statement = "Instruction: LSR R" + r1 + " R" + r2 + " " + r3 + shamt; break;
+            case 10: statement = "Instruction: MOVR R" + r1 + " R" + r2 + " " + immediate; break;
+            case 11: statement = "Instruction: MOVM R" + r1 + " R" + r2 + " " + immediate; break;
+            default: break;
+        }
 
-        decodedInstruction[0] = opcode;
-        decodedInstruction[1] = valueRS;
-        decodedInstruction[2] = valueRT;
-        decodedInstruction[3] = rd; 
-        decodedInstruction[4] = shamt;
-        decodedInstruction[5] = imm;
-        decodedInstruction[6] = jmpAddress;
-        decodedInstruction[7] = valueRD;
-
-        // Printings
-
-        // System.out.println("Instruction " + registers.getProgramCounter());
-        // System.out.println("opcode = " + opcode);
-        // System.out.println("rs = " + rd);
-        // System.out.println("rt = " + rs);
-        // System.out.println("rd = " + rt);
-        // System.out.println("shift amount = " + shamt);
-        // System.out.println("immediate = " + imm);
-        // System.out.println("jmpAddress = " + jmpAddress);
-        // System.out.println("----------");
-        
-        return decodedInstruction;
+        return new Instruction(pcRegister, opcode,r1,r2,r3,shamt,immediate,address,valueR1,valueR2,valueR3,type,statement);
 
     }
 
     // Execution
-    public String[] execute(String[] decodedInstruction){
-        String[] executedInstruction = new String[3];
-        executedInstruction[1] = decodedInstruction[3];
-        executedInstruction[2] = decodedInstruction[7];
+    public void execute(Instruction instruction){
 
-
-        if (decodedInstruction[0].equals("0000")) { // ADD
-            int rsContent = Integer.parseInt(decodedInstruction[1], 2);
-            int rtContent = Integer.parseInt(decodedInstruction[2], 2);
-            int rdContent = rsContent + rtContent;
-            executedInstruction[0] = String.format("%32s", Integer.toBinaryString(rdContent)).replace(' ', '0');
-
-        } else if (decodedInstruction[0].equals("0001")) { // SUB
-            int rsContent = Integer.parseInt(decodedInstruction[1], 2);
-            int rtContent = Integer.parseInt(decodedInstruction[2], 2);
-            int rdContent = rsContent - rtContent;
-            executedInstruction[0] = String.format("%32s", Integer.toBinaryString(rdContent)).replace(' ', '0');
-
-        } else if (decodedInstruction[0].equals("0010")) { // MUL
-            int rsContent = Integer.parseInt(decodedInstruction[1], 2);
-            int rtContent = Integer.parseInt(decodedInstruction[2], 2);
-            int rdContent = rsContent * rtContent;
-            executedInstruction[0] = String.format("%32s", Integer.toBinaryString(rdContent)).replace(' ', '0');
-
-        } else if (decodedInstruction[0].equals("0011")) { // MOVI
-            String rdContent = String.format("%32s", decodedInstruction[5]).replace(' ', '0');
-            executedInstruction[0] = rdContent;
-
-        } else if (decodedInstruction[0].equals("0100")) { // JEQ
-            int rsContent = Integer.parseInt(decodedInstruction[1], 2);
-            int rdContent = Integer.parseInt(registers.readRegister(Integer.parseInt(decodedInstruction[3] , 2)), 2);
-            if (rsContent == rdContent) {
-                registers.setProgramCounter(registers.getProgramCounter() + Integer.parseInt(decodedInstruction[5], 2));
+        if(instruction.type.equals('R')){
+            switch (instruction.opcode){
+                case 0: instruction.valueR1 = instruction.valueR2 + instruction.valueR3; break;
+                case 1: instruction.valueR1 = instruction.valueR2 - instruction.valueR3; break;
+                case 2: instruction.valueR1 = instruction.valueR2 * instruction.valueR3; break;
+                case 5: instruction.valueR1 = instruction.valueR2 & instruction.valueR3; break;
+                case 8: instruction.valueR1 = instruction.valueR2 << instruction.shamt; break;
+                case 9: instruction.valueR1 = instruction.valueR2 >>> instruction.shamt; break;
+                default: break;
             }
-
-        } else if (decodedInstruction[0].equals("0101")) { // AND
-            int rsContent = Integer.parseInt(decodedInstruction[1], 2);
-            int rtContent = Integer.parseInt(decodedInstruction[2], 2);
-            int rdContent = rsContent & rtContent;
-            executedInstruction[0] = String.format("%32s", Integer.toBinaryString(rdContent)).replace(' ', '0');
-
-        } else if (decodedInstruction[0].equals("0110")) { // XORI
-            int rsContent = Integer.parseInt(decodedInstruction[1], 2);
-            int rdContent = rsContent ^ Integer.parseInt(decodedInstruction[5], 2);
-            executedInstruction[0] = String.format("%32s", Integer.toBinaryString(rdContent)).replace(' ', '0');
-
-        } else if (decodedInstruction[0].equals("0111")) { // JMP
-            registers.setProgramCounter(Integer
-                    .parseInt((Integer.toBinaryString(registers.getProgramCounter()).substring(0, 4) + decodedInstruction[6]), 2));
-
-        } else if (decodedInstruction[0].equals("1000")) { // LSL
-            int rsContent = Integer.parseInt(decodedInstruction[1], 2);
-            int rdContent = rsContent << Integer.parseInt(decodedInstruction[4], 2);
-            executedInstruction[0] = String.format("%32s", Integer.toBinaryString(rdContent)).replace(' ', '0');
-
-        } else if (decodedInstruction[0].equals("1001")) { // LSR
-            int rsContent = Integer.parseInt(decodedInstruction[1], 2);
-            int rdContent = rsContent >>> Integer.parseInt(decodedInstruction[4], 2);
-            executedInstruction[0] = String.format("%32s", Integer.toBinaryString(rdContent)).replace(' ', '0');
-
-        } else if (decodedInstruction[0].equals("1010")) { // MOVR
-            int rsContent = Integer.parseInt(decodedInstruction[1], 2);
-            String rdContent = memory.read(rsContent + Integer.parseInt(decodedInstruction[5], 2));
-            executedInstruction[0] = String.format("%32s", rdContent).replace(' ', '0');
-
-        } else if (decodedInstruction[0].equals("1011")) { // MOVM
-            int rsContent = Integer.parseInt(decodedInstruction[1], 2);
-            int memAddress = rsContent + Integer.parseInt(decodedInstruction[5], 2);
-            executedInstruction[0] = Integer.toBinaryString(memAddress);
         }
-        return executedInstruction;
+        else if(instruction.type.equals('I')){
+            switch (instruction.opcode){
+                case 3: instruction.valueR1 = instruction.immediate; break;
+                case 4:
+                    if(instruction.valueR1 == instruction.valueR2) {
+                        pcRegister = pcRegister + 1 + instruction.immediate;
+                    }
+                    break;
+                case 6: instruction.valueR1 = instruction.valueR2 ^ instruction.immediate; break;
+                case 10: break;
+                case 11: instruction.r1 = instruction.valueR2 + instruction.immediate; break;
+                default: break;
+            }
+        }
+        else {
+            pcRegister = pcRegister & 0b11110000000000000000000000000000;
+            pcRegister = pcRegister | instruction.address;
+        }
+        if(instruction.r1==0)
+            instruction.valueR1=0;
+
     }
-    public void memory(String[] executedInstruction){
-        memory.write(Integer.parseInt(executedInstruction[0], 2), executedInstruction[2]);
+
+    public void memory(Instruction instruction){
+        if(instruction.opcode == 10){
+            instruction.valueR1 = memory.dataMemory.get(instruction.r2 + instruction.immediate);
+        }
+        else if(instruction.opcode == 11){
+            System.out.println(instruction.r1 + "heeeeeeeeeeeeerrre");
+            System.out.println(instruction.valueR1+ "heeeeeeeeeeeeerrre");
+            memory.dataMemory.set(instruction.r1, instruction.valueR1);
+            System.out.println("Data Memory Block " + instruction.r1 + ": " + memory.dataMemory.get(instruction.r1));
+        }
     }
-    public void writeBack(String[] executedInstruction){
-        registers.writeRegister(Integer.parseInt(executedInstruction[1], 2), executedInstruction[0]);
+
+    public void writeBack(Instruction instruction){
+        if(instruction.opcode != 4 && instruction.opcode != 7 && instruction.opcode != 10){
+            registerFile.registers.get(instruction.r1).value = instruction.valueR1;
+            System.out.println("Register " + instruction.r1 + ": " + registerFile.registers.get(instruction.r1).value);
+        }
     }
+
     
     // Pipelining
-    public void run() throws CaException{
-        String fetchedInstruction = "";
-        // Vector<String[]> decodedInstuction = new Vector<>();
-        String[] decodedInstuction = new String[32];
-        String[] decodedInstuctionRun2 = new String[32];
-        String[] executedInstrction = new String[32];
-        // String[] instruction = new String[32];
-        // int decodeCounter = 0;
-        // int executeCounter = 0;
-        // int noOfDecodedInstruction = 0 ;
-        // int noOfExecutedInstruction = 0;
-        int totalCycles = (((memory.numberOfInstructions())-1)*2) + 7;
-        for(int counter = 0; counter < totalCycles; counter++){
-            System.out.println("clock = "+clk);
-            System.out.println("n = "+memory.numberOfInstructions());
-            System.out.println("total = "+totalCycles);
-            System.out.println("counter = "+counter);
-            System.out.println("----------");
+    public void pipeline(){
+        int n = memory.numberOfInstructions;
+        int clk;
+        int maxpipe=0;
 
-            // if(clk == 1){
-            //     instruction[counter] = fetch();
-            // }
-            // else if(clk == 2 && clk%2 == 1){
-            //     instruction[counter] = fetch();
-            //     decode(instruction[decodeCounter]);
-            //     noOfDecodedInstruction++;
-            // }
-            // else if(clk == 3){
-            //     instruction[counter] = fetch();
-            //     if(noOfDecodedInstruction != 2){
-            //     decode(instruction[decodeCounter]);
-            //     noOfDecodedInstruction++;
-            // }
-            //     else{
-            //         decodeCounter++;
-            //         decode(instruction[decodeCounter]);
-            //         noOfDecodedInstruction = 1;
-            //     }
-            //     execute(instruction[executeCounter]);
-            // }            
+        int decodearrival=0;
+        int executearrival=0;
+        int memoryarrival=0;
+        int writebackarrival=0;
+        int finisharrival=0;
+        int decodearrivalplusone=0;
+        int executearrivalplusone=0;
+        int tempdecoding=0;
+        int jumpingPC = 0;
+        int oldPC = 0;
+        boolean weJumping = false;
+        boolean dropOne = false;
 
-            if (clk == 1){
-                fetchedInstruction = fetch();
-                clk++;
+        // pointers
+        Integer fetching=null;
+        Instruction decoding=null;
+        Instruction executing=null;
+        Instruction memorying=null;
+        Instruction writingbacking=null;
+
+
+
+        for(clk=1 ; clk<=(7+ ((n-1)*2)); clk++){
+
+            System.out.println("Clock Cycle = "+ clk);
+
+            // Finishing the instruction
+            if(clk==finisharrival){
+                maxpipe--;
+                writingbacking=null;
             }
-            else if (clk == 2){
-                decodedInstuction = decode(fetchedInstruction);
-                clk++;
+            // Writing_Back Stage
+            if(clk==writebackarrival){
+                writeBack(memorying);
+                writingbacking=memorying;
+                memorying=null;
+                finisharrival=clk+1;
             }
-            else if (clk == 3){
-                decodedInstuction = decode(fetchedInstruction);
-                decodedInstuctionRun2 = decode(fetchedInstruction);
-                fetchedInstruction = fetch();
-                clk++;
+            // Memory Stage
+            if(clk==memoryarrival){
+                memory(executing);
+                memorying=executing;
+                executing=null;
+                writebackarrival=clk+1;
             }
-            else if (clk == 4){
-                executedInstrction = execute(decodedInstuction);
-                decodedInstuction = decode(fetchedInstruction);       
-                clk++;         
+
+            // Executing in second clk
+            if (clk==executearrivalplusone){
+
+                if(executing.opcode==4 || executing.opcode==7){
+                    weJumping = true;
+                    oldPC=pcRegister;
+                }
+                execute(executing);
+
+                if (oldPC == pcRegister && executing.opcode==7)
+                    dropOne = true;
+                if (oldPC == pcRegister && executing.opcode==4){
+                    if (executing.valueR1 != executing.valueR2)
+                        dropOne= true;
+                }
+                if (oldPC==pcRegister+1 && weJumping)
+                    pcRegister=oldPC;
+
             }
-            else if (clk == 5){ 
-                executedInstrction = execute(decodedInstuctionRun2);
-                decodedInstuction = decode(fetchedInstruction);     
-                fetchedInstruction = fetch();
-                clk++;
+
+            // First executing clk
+            if(clk==executearrival){
+                executing=decoding;
+                decoding=null;
+                memoryarrival=clk+2;
+                executearrivalplusone= executearrival+1;
             }
-            else if (clk%2 == 0){
-                memory(executedInstrction);
-                executedInstrction = execute(decodedInstuction);
-                decodedInstuction = decode(fetchedInstruction);
-                clk++;
+
+            // Second decoding clk
+            if(clk==decodearrivalplusone){
+                decoding=decode(tempdecoding);
+                tempdecoding=0;
             }
-            else{
-                writeBack(executedInstrction);
-                executedInstrction = execute(decodedInstuction);
-                decodedInstuction = decode(fetchedInstruction);
-                fetchedInstruction = fetch();
-                clk++;
+
+            // First decoding clk
+            if(clk==decodearrival){
+                tempdecoding=fetching;
+                decoding=decode(tempdecoding);
+                if(decoding.opcode==4 || decoding.opcode==7)
+                    jumpingPC = pcRegister-1;
+                fetching=null;
+                executearrival=clk+2;
+                decodearrivalplusone=decodearrival+1;
             }
+
+            // Fetching Stage
+            if(clk%2!=0 && pcRegister<memory.instructionMemory.size() && maxpipe<=4){
+                fetching=fetch();
+                maxpipe++;
+                decodearrival=clk+1;
+
+            }
+            // To end of we finished the instructions :)
+            if (fetching==null&&decoding==null&&executing==null&&memorying==null&&writingbacking==null){
+                n=clk;
+                break;
+            }
+
+            // printing :)
+            System.out.println("PC  " + (pcRegister));
+            System.out.println("Fetching = " + ((fetching==null)?"---":fetching));
+            System.out.println("Decoding = " + ((decoding==null)?"---":decoding));
+            System.out.println("Executing = " + ((executing==null)?"---":executing));
+            System.out.println("Memory = " + ((memorying==null)?"---":memorying));
+            System.out.println("Write Back = " + ((writingbacking==null)?"---":writingbacking));
+            System.out.println("-------------------------------------------------------");
+
+            // to null the instructions we are dropping
+            if(weJumping && executing!=null){
+                weJumping=false;
+                if(jumpingPC>pcRegister)
+                    n = n + n;
+                if(oldPC!=pcRegister-1 && oldPC!=pcRegister){
+                    decoding=null;
+                    fetching=null;
+                    decodearrival=0;
+                    decodearrivalplusone=0;
+                    executearrival=0;
+                    executearrivalplusone=0;
+                    maxpipe-=2;
+                    jumpingPC=0;
+                    oldPC=0;
+                    pcRegister--;
+                }
+                if(dropOne){
+                    decoding=null;
+                    decodearrivalplusone=0;
+                    executearrival=0;
+                    executearrivalplusone=0;
+                    maxpipe-=1;
+                    jumpingPC=0;
+                    oldPC=0;
+                    dropOne= false;
+                }
+            }//end of nulling
+
+        }//end of looping
+
+        for(int i = 0; i < registerFile.registers.size(); i++){
+            System.out.println("Register: " + registerFile.registers.get(i).name + "  " + " Value: " + registerFile.registers.get(i).value);
         }
+
+        for(int i = 0; i < memory.dataMemory.size(); i++){
+            if(memory.dataMemory.get(i) != 0){
+                System.out.println("Data Memory Block " + (i+1024) + ": " + memory.dataMemory.get(i));
+            }
+            
+        }
+        for(int i = 0; i < memory.instructionMemory.size(); i++){
+            System.out.println("Instruction Memory Block " + i + ": " + memory.instructionMemory.get(i));
+        }
+    }// end of method
+
+    public static void main(String[] args) throws Exception {
+        Ca ca = new Ca("Instructions.txt");
+        ca.pipeline();
+        //Printings
     }
+
 }
