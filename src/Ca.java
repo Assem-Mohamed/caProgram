@@ -291,7 +291,7 @@ public class Ca {
             if (clk == decodeCalling) {
                 decodeTemp = fetching;
                 decoding = decode(decodeTemp);
-                if (decoding.opcode == 4 || decoding.opcode == 7)
+                if (decoding.opcode == 4)
                     jumpingPC = pcRegister - 1;
                 fetching = null;
                 executeCalling = clk + 2;
@@ -382,7 +382,7 @@ public class Ca {
     }// end of method
 
     public static void main(String[] args) throws Exception {
-        Ca ca = new Ca("src\\Instructions.txt");
+        Ca ca = new Ca("Instructions.txt");
         ca.pipeline();
 
     }
