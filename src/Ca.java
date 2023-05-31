@@ -256,14 +256,12 @@ public class Ca {
             // Executing in second clk
             if (clk == executeCallingRun2) {
 
-                if (executing.opcode == 4 || executing.opcode == 7) {
+                if (executing.opcode == 4) {
                     jumping = true;
                     oldPC = pcRegister;
                 }
                 execute(executing);
 
-                if (oldPC == pcRegister && executing.opcode == 7)
-                    drop = true;
                 if (oldPC == pcRegister && executing.opcode == 4) {
                     if (executing.valueR1 != executing.valueR2)
                         drop = true;
