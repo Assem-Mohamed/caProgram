@@ -24,7 +24,7 @@ public class Memory {
         Scanner reader;
         try {
             reader = new Scanner(file);
-            while (reader.hasNextLine()) {
+            while (reader.hasNextLine()){
                 String[] line = reader.nextLine().split(" ");
                 int opcode;
                 int r1;

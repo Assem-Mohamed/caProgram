@@ -18,8 +18,7 @@ public class Instruction {
         this.id=id;
         this.opcode = opcode;
         this.r1 = r1;
-        this.r2 = r2;
-        this.r3 = r3;
+        this.r2 = r2;        this.r3 = r3;
         this.shamt = shamt;
         this.immediate = immediate;
         this.address = address;
